@@ -1,17 +1,34 @@
-import React from 'react';
-import { Text } from 'react-native';
+import React, { memo } from 'react';
+import { Text, View, TouchableOpacity } from 'react-native';
 
 interface Props {
   data: {
+    id: number;
     name: string;
     likes: number;
-  }
+    online: string;
+  },
+  follow: () => void;
 }
 
-export function Friend({ data }: Props) {
+function FriendComponent({ data, follow }: Props) {
   return (
-    <Text>
-      { data.name } - Likes: { data.likes }
-    </Text>
+    <View style={{ marginBottom: 10 }}>
+      <Text>
+        { data.name } - Likes: { data.likes }
+      </Text>
+
+      <TouchableOpacity onPress={follow}>
+        <Text>Deixar de seguir</Text>
+      </TouchableOpacity>
+
+      <Text>
+        Online em: {data.online}
+      </Text>
+    </View>
   );
 };
+
+export const Friend = memo(FriendComponent, (prevProps, nextProps) => {
+  return Object.is(prevProps, nextProps);
+});

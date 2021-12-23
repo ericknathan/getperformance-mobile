@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { FriendList } from '../components/FriendList';
 
@@ -7,9 +7,15 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Button,
-  ScrollView
+  Button
 } from 'react-native';
+
+interface Data {
+  id: string;
+  name: string;
+  likes: number;
+
+}
 
 export function Home() {
   const [name, setName] = useState('');
@@ -18,8 +24,22 @@ export function Home() {
   async function handleSearch() {
     const response = await fetch(`http://192.168.15.10:3333/friends?q=${name}`);
     const data = await response.json();
-    setFriends(data);
+
+    const formattedData = data.map((friend: Data) => {
+      return {
+        id: friend.id,
+        name: friend.name,
+        likes: friend.likes,
+        online: `${new Date().getHours()}:${new Date().getMinutes()}`
+      }
+    });
+    
+    setFriends(formattedData);
   }
+
+  const handleFollow = useCallback(() => {
+    console.log(`follow user`);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -36,12 +56,13 @@ export function Home() {
         onPress={handleSearch}
       />
 
-      <ScrollView style={styles.list}>
-        <FriendList data={friends} />
-      </ScrollView>
+      <FriendList
+        data={friends}
+        follow={handleFollow}
+      />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -57,8 +78,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 7,
     marginVertical: 10
-  },
-  list: {
-    marginTop: 20
   }
-})
+});
